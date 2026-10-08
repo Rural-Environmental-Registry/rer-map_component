@@ -176,6 +176,7 @@ Configuração adicional em `options.tools`:
 | `measureLine` | Botão de medição de distância entre dois pontos |
 | `measurePolygon` | Botão de medição de área por polígono desenhado |
 | `measureArea` | Modo legado de medição de área |
+| `showInteractionPanel` | Exibe o painel flutuante (ajuda + Cancelar/Finalizar). Default `true`. Com `false`, a instrução fica só no `title` (tooltip) do botão |
 | `texts` | Rótulos do painel de medição (distância, área, ajuda, cancelar, finalizar) |
 
 ### Injeção menu lateral

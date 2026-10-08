@@ -39,6 +39,7 @@ export {
   resolveLayerActions,
   resolveEditControlAction,
   shouldApplyMapOverlay,
+  isMenuSeparator,
   collectLayerMetricsMap,
   resolveLayerMetrics,
   collectLayerInfoIconsMap,

@@ -115,6 +115,7 @@ export type LayerData = {
   name: string
   active: boolean
   activeDefault: boolean
+  role?: 'layer' | 'separator'
   tooltip?: string
   toggle?: {
     active: string

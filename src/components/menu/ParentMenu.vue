@@ -51,8 +51,16 @@
       v-for="(child, idx) in childrenLayers"
       :key="child.key"
     >
+      <ElMenuItem
+        v-if="isMenuSeparator(child)"
+        :index="child.key"
+        class="parent-menu-subgroup-header"
+        disabled
+      >
+        <div class="parent-menu-subgroup-title">{{ child.name }}</div>
+      </ElMenuItem>
       <ChildMenu
-        v-if="child.name"
+        v-else-if="child.name"
         :actionDefaults="actionDefaults"
         :data="child"
         :groupKey="groupData.key"
@@ -104,7 +112,10 @@
     LayerActionStyle,
     LayerData
   } from '../../types'
-  import { resolveActiveGroupActions } from '../../utils/layersConfigNormalizer'
+  import {
+    isMenuSeparator,
+    resolveActiveGroupActions
+  } from '../../utils/layersConfigNormalizer'
   import { resolveLayerActiveState, setHistory } from '../../utils/menuHistory.ts'
 
   const DEFAULT_ACTION_STYLE: Required<LayerActionStyle> = {
@@ -179,8 +190,14 @@
       'Ocultar'
   )
 
+  const toggleableLayers = computed(() =>
+    childrenLayers.value.filter((layer: LayerData) => !isMenuSeparator(layer))
+  )
+
   const toggleVisibleAllLayers = (): void => {
-    if (props.persist) childrenLayers.value.forEach((layer: LayerData) => setHistory(layer))
+    if (props.persist) {
+      toggleableLayers.value.forEach((layer: LayerData) => setHistory(layer))
+    }
 
     emit('onGroupLayerToggle', {
       ...props.groupData,
@@ -189,13 +206,11 @@
   }
 
   const allLayersActive = computed<boolean>({
-    get: () => childrenLayers.value.some((layer: LayerData) => layer.active),
+    get: () => toggleableLayers.value.some((layer: LayerData) => layer.active),
     set: (active: boolean) => {
       childrenLayers.value = (props.groupData.layers ?? []).map((layer: LayerData) => {
-        return {
-          ...layer,
-          active
-        }
+        if (isMenuSeparator(layer)) return resolveLayerActiveState(layer, props.persist)
+        return { ...layer, active }
       })
 
       toggleVisibleAllLayers()
@@ -320,5 +335,32 @@
 
   .parent-menu-divider-row {
     margin: 0 !important;
+  }
+
+  /* Título de subgrupo: separador visual, sem accordion */
+  .parent-menu .parent-menu-subgroup-header {
+    height: auto !important;
+    line-height: normal !important;
+    white-space: normal !important;
+    padding: var(--mapa-size-base-10) var(--mapa-size-base-20) var(--mapa-size-base-5) !important;
+    cursor: default !important;
+    opacity: 1 !important;
+    color: inherit !important;
+  }
+
+  .parent-menu .parent-menu-subgroup-header:hover,
+  .parent-menu .parent-menu-subgroup-header.is-disabled {
+    background-color: transparent !important;
+    cursor: default !important;
+    opacity: 1 !important;
+  }
+
+  .parent-menu .parent-menu-subgroup-title {
+    font-size: var(--mapa-fs-12);
+    font-weight: 700;
+    line-height: 150%;
+    color: var(--mapa-base-black, #000000);
+    word-wrap: break-word;
+    white-space: normal;
   }
 </style>

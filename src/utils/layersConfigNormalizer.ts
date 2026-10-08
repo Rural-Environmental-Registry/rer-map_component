@@ -159,7 +159,12 @@ export const resolveEditControlAction = (
   }
 }
 
+export const isMenuSeparator = (layer: LayerData | null | undefined): boolean => {
+  return layer?.role === 'separator' || !!layer?.meta?.isSeparator
+}
+
 export const shouldApplyMapOverlay = (layer: LayerData): boolean => {
+  if (isMenuSeparator(layer)) return false
   if (layer.mapSource === 'none' || layer.mapSource === 'consumer') return false
   if (layer.mapSource === 'wms' || layer.mapSource === 'geojson') return true
   if (layer.geojson) return true
