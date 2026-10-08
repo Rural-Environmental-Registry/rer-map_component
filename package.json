@@ -1,6 +1,6 @@
 {
   "name": "@rural-environmental-registry/map_component",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Map component for Vue.js applications",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
