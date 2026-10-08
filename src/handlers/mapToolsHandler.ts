@@ -198,7 +198,9 @@ export default class MapToolsHandler {
 
     this._control = new MapToolsControl()
     this._map.addControl(this._control)
-    this.removeNativeZoomControl()
+    if (config.zoom?.show !== false) {
+      this.removeNativeZoomControl()
+    }
     this.alignTopRightControls()
   }
 

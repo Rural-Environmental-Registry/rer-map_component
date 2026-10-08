@@ -15,6 +15,19 @@ export type FaIconName =
   | 'pencil'
   | 'trash'
   | 'chevron-down'
+  | 'eye'
+  | 'eye-slash'
+  | 'circle-info'
+  | 'circle-exclamation'
+  | 'triangle-exclamation'
+  | 'circle-check'
+  | 'circle-xmark'
+  | 'ban'
+  | 'lock'
+  | 'unlock'
+  | 'thumbtack'
+  | 'thumb-tack'
+  | 'map-pin'
 
 export type DrawnArea = {
   m2: number
@@ -24,39 +37,156 @@ export type DrawnArea = {
 
 export type IncrementedLayer = Layer & { drawnArea: DrawnArea }
 
-export type LayerData = {
-  baseUrl: string
-  geojson?: GeoJsonObject | GeoJsonObject[]
-  layers: string
-  format: string
-  transparent: boolean
+export type LayerActionStyle = {
+  backgroundColor: string
+  color: string
+  borderColor?: string
+}
+
+export type LayerActionDefaultItem = {
+  key?: string
   name: string
-  activeDefault: boolean
-  cqlFilter?: string
-  active: boolean
+  icon?: FaIconName
+  style?: LayerActionStyle
+  disabled?: boolean
+  visible?: boolean
+}
+
+export type LayerActionDefaults = {
+  edit?: LayerActionDefaultItem
+  import?: LayerActionDefaultItem
+  delete?: LayerActionDefaultItem
+  cancel?: LayerActionDefaultItem
+  conclude?: LayerActionDefaultItem
+}
+
+export type LayerActionConfig = {
   key: string
-  toggle: {
+  name: string
+  icon?: FaIconName
+  type?: 'edit' | 'import' | 'delete' | 'visibility' | 'custom' | 'cancel' | 'conclude'
+  disabled?: boolean
+  visible?: boolean
+  style?: LayerActionStyle
+}
+
+export type LayerMetricsConfig = {
+  title: string
+  type: string
+  value: string | number
+  style?: LayerActionStyle
+}
+
+/** @deprecated Use LayerMetricsConfig */
+export type LayerMetrics = LayerMetricsConfig
+
+export type LayerMetricsMap = Record<string, LayerMetricsConfig[]>
+
+export type LayerInfoIconConfig = {
+
+  key?: string
+  icon: FaIconName
+  active: boolean
+  tooltip?: string
+  style?: Partial<Pick<LayerActionStyle, 'color' | 'backgroundColor'>>
+}
+
+export type LayerInfoIconsMap = Record<string, LayerInfoIconConfig[]>
+
+export type GroupActionConfig = LayerActionConfig & {
+  active: boolean
+}
+
+
+export type GroupActionsMap = Record<string, GroupActionConfig[]>
+
+export type SectionConfig = {
+  name?: string
+  key: string
+  groups: GroupLayerData[]
+  actionDefaults?: LayerActionDefaults
+}
+
+/** @deprecated Use SectionConfig */
+export type SectionData = SectionConfig
+
+export type LayerData = {
+  key: string
+  name: string
+  active: boolean
+  activeDefault: boolean
+  role?: 'layer' | 'separator'
+  tooltip?: string
+  toggle?: {
     active: string
     inactive: string
   }
-  style: {
+  visibility?: {
+    labelShow?: string
+    labelHide?: string
+    show?: boolean
+  }
+  style?: {
     color: string
     fillColor: string
+    icon?: string
   }
-  options?: any
+  baseUrl?: string
+  layers?: string
+  format?: string
+  transparent?: boolean
+  geojson?: GeoJsonObject | GeoJsonObject[]
+  cqlFilter?: string
+  options?: Record<string, unknown>
+
+  mapSource?: 'wms' | 'geojson' | 'none' | 'consumer'
+  actions?: LayerActionConfig[]
+  metrics?: LayerMetricsConfig[]
+  infoIcons?: LayerInfoIconConfig[]
+  required?: boolean
+  editActions?: LayerActionConfig[]
+  meta?: Record<string, unknown>
 }
 
 export type GroupLayerData = {
   name: string
   key: string
-  toggle: {
+  toggle?: {
     active: string
     inactive: string
   }
+  visibility?: {
+    show?: boolean
+    labelShow?: string
+    labelHide?: string
+  }
+  collapsed?: boolean
+  actions?: GroupActionConfig[]
   layers: LayerData[]
+  meta?: Record<string, unknown>
 }
 
-export type LayersConfig = GroupLayerData[]
+export type LayersConfig = GroupLayerData[] | SectionConfig[]
+
+export type LayerActionPayload = {
+  actionKey: string
+  actionType?: LayerActionConfig['type']
+  sectionKey?: string
+  groupKey?: string
+  layerKey?: string
+  layer?: LayerData
+  source: 'child-menu' | 'edit-panel' | 'group-menu'
+}
+
+export type SectionEditStatePayload = {
+  sectionKey: string | null
+  layerKey: string | null
+  layer: LayerData | null
+}
+
+export type SectionSelectPayload = {
+  sectionKey: string
+}
 
 export type DrawingEvent = {
   type: 'created' | 'edited' | 'deleted'
@@ -87,7 +217,6 @@ export type MapConfigConfig = MapOptions & {
   id: string
   removeControlLayers?: boolean
   zoomControlPosition?: ControlPosition
-  /** Reposiciona marcadores após zoom (evita drift de divIcon). Padrão: true. */
   stabilizeMarkersOnZoom?: boolean
 }
 
@@ -99,6 +228,10 @@ export type LayersMenuConfig = {
   size: 'small' | 'medium' | 'large'
   removeMenu?: boolean
   persist: boolean
+  editingLayerKey?: string | null
+  selectedSectionKey?: string | null
+  visibilityMode?: 'switch' | 'eye'
+  defaultOpen?: boolean
 }
 
 export type MemorialConfig = {
@@ -131,6 +264,7 @@ export type MapToolsConfig = {
     show?: boolean
     title?: string
   }
+  showInteractionPanel?: boolean
   texts?: {
     measureResult?: string
     measureLength?: string
