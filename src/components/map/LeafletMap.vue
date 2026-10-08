@@ -81,10 +81,12 @@
 
   const initMap = (): void => {
     const { config } = props.mapOptions
+    const toolsConfig = resolveMapToolsConfig(props.toolsOptions)
+    const useToolsZoom = !!toolsConfig && toolsConfig.zoom?.show !== false
     const mapConfig: MapConfigConfig = {
       ...DEFAULT_MAP_OPTIONS,
       ...config,
-      ...(resolveMapToolsConfig(props.toolsOptions) ? { zoomControl: false } : {})
+      ...(useToolsZoom ? { zoomControl: false } : {})
     }
 
     mapHandlerInstance = new MapHandler(mapConfig)
