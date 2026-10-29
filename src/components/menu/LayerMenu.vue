@@ -469,8 +469,7 @@
   .layer-menu > .map-custom-menu {
     box-shadow: var(--mapa-base-box-shadow);
     padding: var(--mapa-size-base-10);
-    overflow-y: scroll;
-    scrollbar-width: none;
+    overflow-y: auto;
     height: 100%;
   }
 

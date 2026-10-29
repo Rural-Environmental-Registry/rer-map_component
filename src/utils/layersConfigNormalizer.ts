@@ -110,6 +110,7 @@ export const resolveLayerActions = (
       name: defaults.edit.name,
       icon: defaults.edit.icon ?? 'pencil',
       type: 'edit',
+      tooltip: defaults.edit.tooltip,
       style: defaults.edit.style,
       disabled: defaults.edit.disabled
     })
@@ -121,6 +122,7 @@ export const resolveLayerActions = (
       name: defaults.import.name,
       icon: defaults.import.icon ?? 'upload',
       type: 'import',
+      tooltip: defaults.import.tooltip,
       style: defaults.import.style,
       disabled: defaults.import.disabled
     })
@@ -132,6 +134,7 @@ export const resolveLayerActions = (
       name: defaults.delete.name,
       icon: defaults.delete.icon ?? 'trash',
       type: 'delete',
+      tooltip: defaults.delete.tooltip,
       style: defaults.delete.style,
       disabled: defaults.delete.disabled
     })
