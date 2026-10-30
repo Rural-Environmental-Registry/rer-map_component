@@ -84,19 +84,26 @@
             v-if="!hideControls && visibleActions.length"
             class="child-menu-actions"
           >
-            <button
+            <ElTooltip
               v-for="action in visibleActions"
               :key="action.key"
-              type="button"
-              class="child-action-button"
-              :disabled="action.disabled"
-              @click.stop="onActionClick(action)"
+              :content="action.tooltip || action.name"
+              :disabled="!(action.tooltip || action.name)"
+              placement="top"
             >
-              <FontAwesomeIcon
-                v-if="action.icon"
-                :iconName="action.icon"
-              />
-            </button>
+              <button
+                type="button"
+                class="child-action-button"
+                :disabled="action.disabled"
+                :aria-label="action.tooltip || action.name"
+                @click.stop="onActionClick(action)"
+              >
+                <FontAwesomeIcon
+                  v-if="action.icon"
+                  :iconName="action.icon"
+                />
+              </button>
+            </ElTooltip>
           </div>
           <template v-else-if="!hideControls && visibilityMode !== 'eye'">
             <ElSwitch
@@ -367,7 +374,7 @@
     align-items: center;
     justify-content: center;
     border: none !important;
-    background: transparent !important;;
+    background: transparent !important;
     color: var(--mapa-base-green);
     cursor: pointer;
     padding: var(--mapa-size-base-2);

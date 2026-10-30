@@ -47,6 +47,7 @@ export type LayerActionDefaultItem = {
   key?: string
   name: string
   icon?: FaIconName
+  tooltip?: string
   style?: LayerActionStyle
   disabled?: boolean
   visible?: boolean
@@ -67,6 +68,7 @@ export type LayerActionConfig = {
   type?: 'edit' | 'import' | 'delete' | 'visibility' | 'custom' | 'cancel' | 'conclude'
   disabled?: boolean
   visible?: boolean
+  tooltip?: string
   style?: LayerActionStyle
 }
 
