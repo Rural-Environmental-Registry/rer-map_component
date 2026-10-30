@@ -49,8 +49,10 @@
     SectionSelectPayload
   } from '../../types'
   import {
+    isMenuSubgroup,
     normalizeLayersConfig,
-    shouldApplyMapOverlay
+    shouldApplyMapOverlay,
+    walkMenuLayers
   } from '../../utils/layersConfigNormalizer'
   import {
     resolveGroupCollapsedState,
@@ -152,6 +154,15 @@
             ? group.collapsed
             : resolveGroupCollapsedState(group.key, undefined, persist)
         if (!collapsed) openeds.push(group.key)
+
+        ;(group.layers || []).forEach((layer) => {
+          if (!isMenuSubgroup(layer)) return
+          const subCollapsed =
+            layer.collapsed !== undefined
+              ? layer.collapsed
+              : resolveGroupCollapsedState(layer.key, true, persist)
+          if (!subCollapsed) openeds.push(layer.key)
+        })
       })
     })
 
@@ -279,7 +290,7 @@
 
     normalizedSections.value.forEach((section) => {
       section.groups.forEach((group) => {
-        group.layers?.forEach((layer) => {
+        walkMenuLayers(group.layers, (layer) => {
           if (initializedLayerKeys.has(layer.key)) return
           if (!shouldApplyMapOverlay(layer)) return
           if (!shouldInitLayerOnMap(layer, persist)) return
@@ -313,7 +324,7 @@
   }
 
   const onGroupLayerToggle = (parent: GroupLayerData): void => {
-    parent.layers.forEach((childLayer: LayerData) => {
+    walkMenuLayers(parent.layers, (childLayer) => {
       applyLayerOverlay(childLayer)
     })
 
@@ -363,7 +374,8 @@
 
   const handleWmsLayer = (layer: LayerData): void => {
     if (convertedLayers.value[layer.key]) {
-      if (!layer.active) return removeWmsLayer(layer)
+      if (!layer.active) removeWmsLayer(layer)
+      return
     }
 
     if (!layer.active) return
@@ -415,7 +427,9 @@
 
   const handleGeoJsonLayer = (layer: LayerData): void => {
     if (convertedGeoJsonLayers.value[layer.key]) {
-      if (!layer.active) return removeGeoJsonLayer(layer)
+      // Já no mapa: só remove se desativada — evita GeoJSON órfão ao reaplicar active=true.
+      if (!layer.active) removeGeoJsonLayer(layer)
+      return
     }
 
     if (!layer.active) return

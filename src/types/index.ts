@@ -117,7 +117,7 @@ export type LayerData = {
   name: string
   active: boolean
   activeDefault: boolean
-  role?: 'layer' | 'separator'
+  role?: 'layer' | 'separator' | 'subgroup'
   tooltip?: string
   toggle?: {
     active: string
@@ -147,6 +147,8 @@ export type LayerData = {
   infoIcons?: LayerInfoIconConfig[]
   required?: boolean
   editActions?: LayerActionConfig[]
+  children?: LayerData[]
+  collapsed?: boolean
   meta?: Record<string, unknown>
 }
 
