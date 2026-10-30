@@ -363,7 +363,8 @@
 
   const handleWmsLayer = (layer: LayerData): void => {
     if (convertedLayers.value[layer.key]) {
-      if (!layer.active) return removeWmsLayer(layer)
+      if (!layer.active) removeWmsLayer(layer)
+      return
     }
 
     if (!layer.active) return
@@ -415,7 +416,9 @@
 
   const handleGeoJsonLayer = (layer: LayerData): void => {
     if (convertedGeoJsonLayers.value[layer.key]) {
-      if (!layer.active) return removeGeoJsonLayer(layer)
+      // Já no mapa: só remove se desativada — evita GeoJSON órfão ao reaplicar active=true.
+      if (!layer.active) removeGeoJsonLayer(layer)
+      return
     }
 
     if (!layer.active) return
