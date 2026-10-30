@@ -40,6 +40,8 @@ export {
   resolveEditControlAction,
   shouldApplyMapOverlay,
   isMenuSeparator,
+  isMenuSubgroup,
+  walkMenuLayers,
   collectLayerMetricsMap,
   resolveLayerMetrics,
   collectLayerInfoIconsMap,

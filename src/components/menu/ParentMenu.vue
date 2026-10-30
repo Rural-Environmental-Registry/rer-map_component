@@ -51,8 +51,29 @@
       v-for="(child, idx) in childrenLayers"
       :key="child.key"
     >
+      <ElSubMenu
+        v-if="isMenuSubgroup(child)"
+        :index="child.key"
+        class="parent-menu-subgroup-accordion"
+      >
+        <template #title>
+          <div class="parent-menu-subgroup-title">{{ child.name }}</div>
+        </template>
+        <ChildMenu
+          v-for="(nested, nestedIdx) in child.children || []"
+          :key="nested.key"
+          :actionDefaults="actionDefaults"
+          :data="nested"
+          :groupKey="groupData.key"
+          :persist="props.persist"
+          :sectionKey="sectionKey"
+          :visibilityMode="visibilityMode"
+          @onChildLayerToggle="onNestedChildChange($event, idx, nestedIdx)"
+          @onLayerAction="emit('onLayerAction', $event)"
+        />
+      </ElSubMenu>
       <ElMenuItem
-        v-if="isMenuSeparator(child)"
+        v-else-if="isMenuSeparator(child)"
         :index="child.key"
         class="parent-menu-subgroup-header"
         disabled
@@ -114,6 +135,7 @@
   } from '../../types'
   import {
     isMenuSeparator,
+    isMenuSubgroup,
     resolveActiveGroupActions
   } from '../../utils/layersConfigNormalizer'
   import { resolveLayerActiveState, setHistory } from '../../utils/menuHistory.ts'
@@ -154,16 +176,26 @@
     onLayerAction: [LayerActionPayload]
   }>()
 
+  const resolveMenuEntry = (layer: LayerData): LayerData => {
+    if (isMenuSubgroup(layer)) {
+      return {
+        ...layer,
+        children: (layer.children || []).map((child) =>
+          resolveLayerActiveState(child, props.persist)
+        )
+      }
+    }
+    return resolveLayerActiveState(layer, props.persist)
+  }
+
   const childrenLayers = ref<LayerData[]>(
-    (props.groupData.layers ?? []).map((layer) => resolveLayerActiveState(layer, props.persist))
+    (props.groupData.layers ?? []).map((layer) => resolveMenuEntry(layer))
   )
 
   watch(
     () => props.groupData.layers,
     (layers) => {
-      childrenLayers.value = (layers ?? []).map((layer) =>
-        resolveLayerActiveState(layer, props.persist)
-      )
+      childrenLayers.value = (layers ?? []).map((layer) => resolveMenuEntry(layer))
     },
     { deep: true }
   )
@@ -190,9 +222,20 @@
       'Ocultar'
   )
 
-  const toggleableLayers = computed(() =>
-    childrenLayers.value.filter((layer: LayerData) => !isMenuSeparator(layer))
-  )
+  const collectToggleableLeaves = (layers: LayerData[]): LayerData[] => {
+    const leaves: LayerData[] = []
+    for (const layer of layers) {
+      if (isMenuSeparator(layer)) continue
+      if (isMenuSubgroup(layer)) {
+        leaves.push(...collectToggleableLeaves(layer.children || []))
+        continue
+      }
+      leaves.push(layer)
+    }
+    return leaves
+  }
+
+  const toggleableLayers = computed(() => collectToggleableLeaves(childrenLayers.value))
 
   const toggleVisibleAllLayers = (): void => {
     if (props.persist) {
@@ -210,6 +253,12 @@
     set: (active: boolean) => {
       childrenLayers.value = (props.groupData.layers ?? []).map((layer: LayerData) => {
         if (isMenuSeparator(layer)) return resolveLayerActiveState(layer, props.persist)
+        if (isMenuSubgroup(layer)) {
+          return {
+            ...layer,
+            children: (layer.children || []).map((child) => ({ ...child, active }))
+          }
+        }
         return { ...layer, active }
       })
 
@@ -219,6 +268,19 @@
 
   const onChildChange = (layer: LayerData, idx: number): void => {
     childrenLayers.value[idx] = layer
+    emit('onChildLayerToggle', layer)
+  }
+
+  const onNestedChildChange = (
+    layer: LayerData,
+    subgroupIdx: number,
+    nestedIdx: number
+  ): void => {
+    const subgroup = childrenLayers.value[subgroupIdx]
+    if (!subgroup) return
+    const children = [...(subgroup.children || [])]
+    children[nestedIdx] = layer
+    childrenLayers.value[subgroupIdx] = { ...subgroup, children }
     emit('onChildLayerToggle', layer)
   }
 
@@ -337,7 +399,6 @@
     margin: 0 !important;
   }
 
-  /* Título de subgrupo: separador visual, sem accordion */
   .parent-menu .parent-menu-subgroup-header {
     height: auto !important;
     line-height: normal !important;
@@ -353,6 +414,21 @@
     background-color: transparent !important;
     cursor: default !important;
     opacity: 1 !important;
+  }
+
+  .parent-menu .parent-menu-subgroup-accordion {
+    padding-left: 0 !important;
+  }
+
+  .parent-menu .parent-menu-subgroup-accordion > .el-sub-menu__title {
+    height: auto !important;
+    line-height: normal !important;
+    white-space: normal !important;
+    padding: var(--mapa-size-base-10) var(--mapa-size-base-20) var(--mapa-size-base-5) !important;
+  }
+
+  .parent-menu .parent-menu-subgroup-accordion > .el-sub-menu__title:hover {
+    background-color: transparent !important;
   }
 
   .parent-menu .parent-menu-subgroup-title {
