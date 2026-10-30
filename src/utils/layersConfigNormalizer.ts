@@ -166,8 +166,26 @@ export const isMenuSeparator = (layer: LayerData | null | undefined): boolean =>
   return layer?.role === 'separator' || !!layer?.meta?.isSeparator
 }
 
+export const isMenuSubgroup = (layer: LayerData | null | undefined): boolean => {
+  return layer?.role === 'subgroup' || !!layer?.meta?.isSubgroup
+}
+
+export const walkMenuLayers = (
+  layers: LayerData[] | undefined,
+  visitor: (layer: LayerData) => void
+): void => {
+  for (const layer of layers || []) {
+    if (isMenuSubgroup(layer) && layer.children?.length) {
+      walkMenuLayers(layer.children, visitor)
+      continue
+    }
+    if (isMenuSeparator(layer)) continue
+    visitor(layer)
+  }
+}
+
 export const shouldApplyMapOverlay = (layer: LayerData): boolean => {
-  if (isMenuSeparator(layer)) return false
+  if (isMenuSeparator(layer) || isMenuSubgroup(layer)) return false
   if (layer.mapSource === 'none' || layer.mapSource === 'consumer') return false
   if (layer.mapSource === 'wms' || layer.mapSource === 'geojson') return true
   if (layer.geojson) return true
