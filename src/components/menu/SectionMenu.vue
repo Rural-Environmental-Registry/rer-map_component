@@ -148,7 +148,8 @@
   import {
     resolveEditControlAction,
     resolveLayerActions,
-    resolveLayerMetrics
+    resolveLayerMetrics,
+    walkMenuLayers
   } from '../../utils/layersConfigNormalizer'
 
   const DEFAULT_ACTION_STYLE: Required<LayerActionStyle> = {
@@ -226,8 +227,11 @@
   ): { layer: LayerData; group: GroupLayerData } | null => {
     if (!layerKey || !section.value) return null
     for (const group of section.value.groups) {
-      const layer = group.layers?.find((item) => item.key === layerKey)
-      if (layer) return { layer, group }
+      let found: LayerData | undefined
+      walkMenuLayers(group.layers, (layer) => {
+        if (!found && layer.key === layerKey) found = layer
+      })
+      if (found) return { layer: found, group }
     }
     return null
   }
