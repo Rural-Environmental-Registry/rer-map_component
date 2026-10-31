@@ -223,8 +223,11 @@
   ): { sectionKey: string; layer: LayerData } | null => {
     for (const section of normalizedSections.value) {
       for (const group of section.groups) {
-        const layer = group.layers?.find((item) => item.key === layerKey)
-        if (layer) return { sectionKey: section.key, layer }
+        let found: LayerData | undefined
+        walkMenuLayers(group.layers, (layer) => {
+          if (!found && layer.key === layerKey) found = layer
+        })
+        if (found) return { sectionKey: section.key, layer: found }
       }
     }
     return null
