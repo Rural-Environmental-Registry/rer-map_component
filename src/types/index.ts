@@ -1,4 +1,11 @@
-import { MapOptions, Layer, PathOptions, ControlOptions, ControlPosition } from 'leaflet'
+import {
+  MapOptions,
+  Layer,
+  PathOptions,
+  ControlOptions,
+  ControlPosition,
+  LatLngBoundsExpression
+} from 'leaflet'
 import { GeoJsonObject } from 'geojson'
 
 // @ts-ignore
@@ -139,6 +146,7 @@ export type LayerData = {
   transparent?: boolean
   geojson?: GeoJsonObject | GeoJsonObject[]
   cqlFilter?: string
+  bounds?: LatLngBoundsExpression
   options?: Record<string, unknown>
 
   mapSource?: 'wms' | 'geojson' | 'none' | 'consumer'

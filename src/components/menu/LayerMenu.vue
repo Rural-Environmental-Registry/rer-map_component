@@ -358,11 +358,17 @@
   }
 
   const convertToWmsLayer = (layer: LayerData): L.TileLayer => {
-    const wmsLayer = L.tileLayer.wms(layer.baseUrl ?? '', {
+    const wmsOptions: L.WMSOptions = {
       layers: layer.layers,
       format: layer.format || 'image/png',
       transparent: layer.transparent
-    })
+    }
+
+    if (layer.bounds) {
+      wmsOptions.bounds = L.latLngBounds(layer.bounds)
+    }
+
+    const wmsLayer = L.tileLayer.wms(layer.baseUrl ?? '', wmsOptions)
 
     if (layer?.cqlFilter && layer.cqlFilter.length > 0) {
       wmsLayer.setParams({
