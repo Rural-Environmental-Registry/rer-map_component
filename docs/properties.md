@@ -38,6 +38,8 @@
 | layers        | string             | Nome das layers no serviço.                            |
 | format        | string             | Formato da imagem (ex: image/png).                     |
 | transparent   | boolean            | Se a camada é transparente.                            |
+| cqlFilter     | string             | Filtro CQL enviado como `cql_filter` no WMS (opcional). |
+| bounds        | LatLngBoundsExpression | Área geográfica em que a camada WMS pode carregar tiles (opcional). Formato Leaflet: `[[south, west], [north, east]]` ou `LatLngBounds`. |
 | name          | string             | Nome exibido no menu.                                  |
 | tooltip       | string             | Texto opcional ao passar o mouse sobre o nome da camada no ChildMenu. |
 | activeDefault | boolean            | Ativa por padrão.                                      |
