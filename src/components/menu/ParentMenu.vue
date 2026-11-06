@@ -57,7 +57,34 @@
         class="parent-menu-subgroup-accordion"
       >
         <template #title>
-          <div class="parent-menu-subgroup-title">{{ child.name }}</div>
+          <div class="parent-menu-row parent-menu-subgroup-row">
+            <div class="parent-menu-subgroup-title">{{ child.name }}</div>
+            <span
+              v-if="showSubgroupVisibilityControl(child)"
+              class="visibility-control"
+            >
+              <button
+                v-if="visibilityMode === 'eye'"
+                type="button"
+                class="visibility-eye-button"
+                :aria-label="
+                  isSubgroupActive(child) ? subgroupHideLabel(child) : subgroupShowLabel(child)
+                "
+                :title="
+                  isSubgroupActive(child) ? subgroupHideLabel(child) : subgroupShowLabel(child)
+                "
+                @click.stop="toggleSubgroupVisibility(idx, !isSubgroupActive(child))"
+              >
+                <FontAwesomeIcon
+                  :iconName="isSubgroupActive(child) ? 'eye' : 'eye-slash'"
+                />
+              </button>
+              <ElDivider
+                class="divider-bar"
+                direction="vertical"
+              />
+            </span>
+          </div>
         </template>
         <ChildMenu
           v-for="(nested, nestedIdx) in child.children || []"
@@ -237,9 +264,47 @@
 
   const toggleableLayers = computed(() => collectToggleableLeaves(childrenLayers.value))
 
-  const toggleVisibleAllLayers = (): void => {
+  const showSubgroupVisibilityControl = (subgroup: LayerData): boolean => {
+    if (props.visibilityMode === 'eye') return subgroup.visibility?.show !== false
+    return false
+  }
+
+  const subgroupShowLabel = (subgroup: LayerData): string =>
+    subgroup.visibility?.labelShow ?? showLabel.value
+
+  const subgroupHideLabel = (subgroup: LayerData): string =>
+    subgroup.visibility?.labelHide ?? hideLabel.value
+
+  const isSubgroupActive = (subgroup: LayerData): boolean =>
+    collectToggleableLeaves(subgroup.children || []).some((layer) => layer.active)
+
+  const emitGroupLayersToggle = (): void => {
     if (props.persist) {
       toggleableLayers.value.forEach((layer: LayerData) => setHistory(layer))
+    }
+
+    emit('onGroupLayerToggle', {
+      ...props.groupData,
+      layers: childrenLayers.value
+    })
+  }
+
+  const toggleSubgroupVisibility = (subgroupIdx: number, active: boolean): void => {
+    const subgroup = childrenLayers.value[subgroupIdx]
+    if (!subgroup || !isMenuSubgroup(subgroup)) return
+
+    const updatedChildren = (subgroup.children || []).map((child) => ({
+      ...child,
+      active
+    }))
+
+    childrenLayers.value[subgroupIdx] = {
+      ...subgroup,
+      children: updatedChildren
+    }
+
+    if (props.persist) {
+      updatedChildren.forEach((layer) => setHistory(layer))
     }
 
     emit('onGroupLayerToggle', {
@@ -262,7 +327,7 @@
         return { ...layer, active }
       })
 
-      toggleVisibleAllLayers()
+      emitGroupLayersToggle()
     }
   })
 
@@ -431,7 +496,12 @@
     background-color: transparent !important;
   }
 
+  .parent-menu .parent-menu-subgroup-row {
+    align-items: center;
+  }
+
   .parent-menu .parent-menu-subgroup-title {
+    flex: 1;
     font-size: var(--mapa-fs-12);
     font-weight: 700;
     line-height: 150%;

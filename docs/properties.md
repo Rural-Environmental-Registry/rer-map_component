@@ -38,13 +38,15 @@
 | layers        | string             | Nome das layers no serviço.                            |
 | format        | string             | Formato da imagem (ex: image/png).                     |
 | transparent   | boolean            | Se a camada é transparente.                            |
+| cqlFilter     | string             | Filtro CQL enviado como `cql_filter` no WMS (opcional). |
+| bounds        | LatLngBoundsExpression | Área geográfica em que a camada WMS pode carregar tiles (opcional). Formato Leaflet: `[[south, west], [north, east]]` ou `LatLngBounds`. |
 | name          | string             | Nome exibido no menu.                                  |
 | tooltip       | string             | Texto opcional ao passar o mouse sobre o nome da camada no ChildMenu. |
 | activeDefault | boolean            | Ativa por padrão.                                      |
 | active        | boolean            | Estado atual da camada.                                |
 | key           | string             | Identificador único.                                   |
 | toggle        | {active, inactive} | Textos utilizados nos botões ativar/desativar camadas. |
-| visibility    | {labelShow, labelHide, show?} | Textos do tooltip/aria do ícone de olho (`visibilityMode: 'eye'`). Prioridade sobre `toggle`. Se `show: false`, oculta o controle de visibilidade. |
+| visibility    | {labelShow, labelHide, show?} | Textos do tooltip/aria do ícone de olho (`visibilityMode: 'eye'`). Prioridade sobre `toggle`. Se `show: false`, oculta o controle de visibilidade. No nó `role: 'subgroup'`, controla o olho do subtítulo (liga/desliga as layers filhas daquele bloco). |
 | style         | {color, fillColor, icon?} | Cores da legenda. Se `icon` estiver definido, exibe o ícone Font Awesome na cor da camada. Sem ícone, exibe só o indicador de cor em círculo. |
 | options       | any                | Configurações adicionais (opcional).                   |
 | metrics       | [LayerMetricsConfig[]](#layermetricsconfig) | Lista de métricas do painel de edição. |
