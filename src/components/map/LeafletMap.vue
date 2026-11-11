@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
   import L from 'leaflet'
-  import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+  import { nextTick, onBeforeUnmount, onMounted, shallowRef } from 'vue'
   import DrawingControlHandler from '../../handlers/drawingControl'
   import MapHandler from '../../handlers/mapHandler'
   import { DEFAULT_MAP_OPTIONS } from '../../handlers/constants'
@@ -45,9 +45,9 @@
 
   const props = defineProps<MapProps>()
 
-  const map = ref<L.Map>()
-  const layerControl = ref<L.Control.Layers>()
-  const drawItemsGroup = ref<L.FeatureGroup>()
+  const map = shallowRef<L.Map>()
+  const layerControl = shallowRef<L.Control.Layers>()
+  const drawItemsGroup = shallowRef<L.FeatureGroup>()
 
   let mapHandlerInstance: MapHandler | null = null
   let mapToolsHandler: MapToolsHandler | null = null
