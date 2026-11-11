@@ -318,7 +318,7 @@
         initDefaultLayers()
       })
     },
-    { immediate: true, deep: true }
+    { immediate: true }
   )
 
   const onChildLayerChange = (layer: LayerData): void => {
