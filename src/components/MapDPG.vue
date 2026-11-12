@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
   import L from 'leaflet'
-  import { computed, ref } from 'vue'
+  import { computed, ref, shallowRef } from 'vue'
   import {
     DrawingEvent,
     GroupActionConfig,
@@ -133,7 +133,7 @@
     toggleMeasureArea: () => void
   }
 
-  const mapRef = ref<MapRef>()
+  const mapRef = shallowRef<MapRef>()
   const mapContainerRef = ref<HTMLElement | null>(null)
   const coordinatePanelRef = ref()
   const isLoading = ref<boolean>(false)
