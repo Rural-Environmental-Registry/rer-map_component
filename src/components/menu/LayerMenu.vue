@@ -36,7 +36,7 @@
 <script lang="ts" setup>
   import { ElButton, ElMenu } from 'element-plus'
   import L from 'leaflet'
-  import { computed, nextTick, ref, watch } from 'vue'
+  import { computed, markRaw, nextTick, ref, shallowRef, toRaw, watch } from 'vue'
   import FontAwesomeIcon from '../fa-icon/FontAwesomeIcon.vue'
   import SectionMenu from './SectionMenu.vue'
   import {
@@ -89,8 +89,8 @@
   const props = defineProps<MenuProps>()
 
   const isMenuOpen = ref<boolean>(!!props.options?.defaultOpen)
-  const convertedLayers = ref<ConvertedLayers>({})
-  const convertedGeoJsonLayers = ref<ConvertedGeoJsonLayers>({})
+  const convertedLayers = shallowRef<ConvertedLayers>({})
+  const convertedGeoJsonLayers = shallowRef<ConvertedGeoJsonLayers>({})
   const internalEditingLayerKey = ref<string | null>(null)
   const internalSelectedSectionKey = ref<string | null>(null)
 
@@ -389,13 +389,15 @@
 
     if (!layer.active) return
 
-    const wmsLayer = convertToWmsLayer(layer)
+    const wmsLayer = markRaw(convertToWmsLayer(layer))
     convertedLayers.value[layer.key] = wmsLayer
 
-    wmsLayer.addTo(props.map)
+    const rawMap = toRaw(props.map)
+    wmsLayer.addTo(rawMap)
 
-    if (props.layerControl) {
-      props.layerControl.addOverlay(wmsLayer, `${wmsLayer.options.attribution}`)
+    const rawLayerControl = props.layerControl ? toRaw(props.layerControl) : null
+    if (rawLayerControl) {
+      rawLayerControl.addOverlay(wmsLayer, `${wmsLayer.options.attribution}`)
     }
   }
 
@@ -403,8 +405,9 @@
     const wmsLayer = convertedLayers.value[layer.key]
     if (!wmsLayer) return
 
-    props.map.removeLayer(wmsLayer)
-    props.layerControl?.removeLayer(wmsLayer)
+    const rawMap = toRaw(props.map)
+    rawMap.removeLayer(wmsLayer)
+    toRaw(props.layerControl)?.removeLayer(wmsLayer)
 
     delete convertedLayers.value[layer.key]
   }
@@ -443,13 +446,15 @@
 
     if (!layer.active) return
 
-    const geoJsonLayer = convertToGeojsonLayer(layer)
+    const geoJsonLayer = markRaw(convertToGeojsonLayer(layer))
     convertedGeoJsonLayers.value[layer.key] = geoJsonLayer
 
-    geoJsonLayer.addTo(props.map)
+    const rawMap = toRaw(props.map)
+    geoJsonLayer.addTo(rawMap)
 
-    if (props.layerControl) {
-      props.layerControl.addOverlay(geoJsonLayer, `${geoJsonLayer.options.attribution}`)
+    const rawLayerControl = props.layerControl ? toRaw(props.layerControl) : null
+    if (rawLayerControl) {
+      rawLayerControl.addOverlay(geoJsonLayer, `${geoJsonLayer.options.attribution}`)
     }
   }
 
@@ -457,8 +462,9 @@
     const geoJsonLayer = convertedGeoJsonLayers.value[layer.key]
     if (!geoJsonLayer) return
 
-    props.map.removeLayer(geoJsonLayer)
-    props.layerControl?.removeLayer(geoJsonLayer)
+    const rawMap = toRaw(props.map)
+    rawMap.removeLayer(geoJsonLayer)
+    toRaw(props.layerControl)?.removeLayer(geoJsonLayer)
 
     delete convertedGeoJsonLayers.value[layer.key]
   }
