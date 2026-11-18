@@ -19,7 +19,7 @@
         :aria-selected="item.key === activeSectionKey"
         @click.stop="onSelectSection(item.key)"
       >
-        {{ item.name || item.key }}
+        {{ item.name || (item.key === 'default' ? 'Layers' : item.key) }}
       </button>
     </div>
 
