@@ -4,7 +4,7 @@
     :class="{ 'section-menu--editing': isEditing }"
   >
     <div
-      v-if="sections.length"
+      v-if="showSectionSelector"
       class="section-menu-selector"
       role="tablist"
       aria-label="Seções do menu de camadas"
@@ -203,6 +203,11 @@
     onLayerAction: [LayerActionPayload]
     onSelectedSectionChange: [string]
   }>()
+
+  const showSectionSelector = computed((): boolean => {
+    if (props.sections.length > 1) return true
+    return Boolean(props.sections[0]?.name)
+  })
 
   const activeSectionKey = computed((): string | null => {
     const sections = props.sections
