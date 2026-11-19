@@ -262,7 +262,8 @@
     const layersToRemove: L.Layer[] = []
 
     mapRef.value.drawItemsGroup.eachLayer(layer => {
-      if (isMemorialLayer(layer)) {
+      const layerCode = (layer as L.Layer & { options?: { layerCode?: string } }).options?.layerCode
+      if (isMemorialLayer(layer) && !layerCode) {
         layersToRemove.push(layer)
       }
     })

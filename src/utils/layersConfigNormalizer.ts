@@ -33,6 +33,15 @@ export const isGroupConfig = (item: unknown): item is GroupLayerData => {
   return Array.isArray(group.layers) || Array.isArray(group.customLayers)
 }
 
+const DEFAULT_SECTION_KEY = 'default'
+const DEFAULT_SECTION_NAME = 'Layers'
+
+const fallbackSection = (groups: GroupLayerData[]): SectionConfig => ({
+  key: DEFAULT_SECTION_KEY,
+  name: DEFAULT_SECTION_NAME,
+  groups
+})
+
 const normalizeGroup = (group: GroupLike): GroupLayerData => {
   const layers = group.layers ?? group.customLayers ?? []
   const { customLayers: _alias, ...rest } = group
@@ -56,12 +65,7 @@ export const normalizeLayersConfig = (config?: LayersConfig | null): SectionConf
   }
 
   if (allGroups) {
-    return [
-      {
-        key: 'default',
-        groups: (config as GroupLike[]).map(normalizeGroup)
-      }
-    ]
+    return [fallbackSection((config as GroupLike[]).map(normalizeGroup))]
   }
 
   console.warn(
@@ -84,7 +88,7 @@ export const normalizeLayersConfig = (config?: LayersConfig | null): SectionConf
   }
 
   if (orphanGroups.length) {
-    sections.push({ key: 'default', groups: orphanGroups })
+    sections.push(fallbackSection(orphanGroups))
   }
 
   return sections
